@@ -16,9 +16,10 @@ struct PlayPauseButton: View {
         Button(action: action) {
             Image(systemName: iconName)
                 .font(.system(size: 32))
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
                 .frame(width: 40, height: 40)
                 .contentShape(Circle())
+                .contentTransition(.symbolEffect(.replace.offUp))
         }
         .buttonStyle(.borderless)
         .scaleEffect(isHovered ? 1.15 : 1.0)
