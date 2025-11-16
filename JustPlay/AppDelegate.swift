@@ -61,6 +61,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 NSLog("⌨️ F pressed - skipping forward 1 second")
                 hoveredVM.skip(by: 1.0)
                 return nil
+            case "t":
+                NSLog("⌨️ T pressed - toggling transcription")
+                hoveredVM.toggleTranscription()
+                return nil
+            case "l":
+                NSLog("⌨️ L pressed - toggling transcription language")
+                hoveredVM.toggleLanguage()
+                return nil
             case "x":
                 hoveredVM.close()
                 return nil

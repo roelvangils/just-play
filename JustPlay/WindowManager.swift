@@ -15,6 +15,7 @@ class WindowManager: ObservableObject {
     @Published var recentItems: [URL] = []
     @Published var currentlyHoveredViewModel: PlayerViewModel?
     private var windows: [UUID: NSWindow] = [:]
+    private var transcriptionWindows: [UUID: NSWindow] = [:]
     private var alwaysOnTop: Bool = false
 
     private let recentItemsKey = "RecentAudioFiles"
@@ -288,6 +289,9 @@ class WindowManager: ObservableObject {
             if let window = self.windows[id] {
                 NSLog("🔍 JustPlay WindowManager: Found window, closing it")
 
+                // Close transcription window first
+                self.closeTranscriptionWindow(for: id)
+
                 // Remove from our tracking first
                 self.windows.removeValue(forKey: id)
                 self.playerViewModels.removeAll { $0.id == id }
@@ -309,6 +313,9 @@ class WindowManager: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
+            // Close transcription window if it exists
+            self.closeTranscriptionWindow(for: viewModel.id)
+
             // Window might already be removed by closeWindow, so just ensure cleanup
             self.windows.removeValue(forKey: viewModel.id)
             self.playerViewModels.removeAll { $0.id == viewModel.id }
@@ -318,6 +325,8 @@ class WindowManager: ObservableObject {
     }
 
     func closeAllWindows() {
+        transcriptionWindows.values.forEach { $0.close() }
+        transcriptionWindows.removeAll()
         windows.values.forEach { $0.close() }
         windows.removeAll()
         playerViewModels.removeAll()
@@ -339,5 +348,73 @@ class WindowManager: ObservableObject {
         window.center()
         window.isReleasedWhenClosed = true
         window.makeKeyAndOrderFront(nil)
+    }
+
+    // MARK: - Transcription Window Management
+
+    /// Create and show a transcription window for a player
+    func showTranscriptionWindow(for viewModel: PlayerViewModel) {
+        NSLog("🪟 [WINDOW-SHOW] showTranscriptionWindow() called for: \(viewModel.fileName)")
+
+        guard let playerWindow = windows[viewModel.id] else {
+            NSLog("❌ [WINDOW-SHOW] Cannot create transcription window: player window not found for id: \(viewModel.id)")
+            return
+        }
+        NSLog("✅ [WINDOW-SHOW] Found player window")
+
+        // Close existing transcription window if any
+        NSLog("🪟 [WINDOW-SHOW] Closing any existing transcription window...")
+        closeTranscriptionWindow(for: viewModel.id)
+
+        // Create transcription window
+        NSLog("🪟 [WINDOW-SHOW] Creating transcription bubble window...")
+        let transcriptionWindow = TranscriptionBubbleWindowHelper.createWindow(
+            for: viewModel.transcriptionViewModel!,
+            playerWindow: playerWindow
+        )
+        NSLog("🪟 [WINDOW-SHOW] Transcription window created")
+
+        // Store reference
+        transcriptionWindows[viewModel.id] = transcriptionWindow
+        NSLog("🪟 [WINDOW-SHOW] Stored transcription window reference")
+
+        // Observe player window frame changes to update transcription position
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didMoveNotification,
+            object: playerWindow,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateTranscriptionWindowPosition(for: viewModel.id)
+        }
+        NSLog("🪟 [WINDOW-SHOW] Added observer for player window movement")
+
+        // Show the window
+        NSLog("🪟 [WINDOW-SHOW] Calling orderFront on transcription window...")
+        transcriptionWindow.orderFront(nil)
+
+        NSLog("✅ [WINDOW-SHOW] Transcription window created and shown for player: \(viewModel.fileName)")
+    }
+
+    /// Update transcription window position when player window moves
+    func updateTranscriptionWindowPosition(for playerId: UUID) {
+        guard let playerWindow = windows[playerId],
+              let transcriptionWindow = transcriptionWindows[playerId] else {
+            return
+        }
+
+        NSLog("🪟 [WINDOW-POSITION] Updating transcription window position for player: \(playerId)")
+        TranscriptionBubbleWindowHelper.positionWindow(transcriptionWindow, below: playerWindow)
+    }
+
+    /// Close transcription window for a specific player
+    func closeTranscriptionWindow(for playerId: UUID) {
+        if let window = transcriptionWindows[playerId] {
+            NSLog("🗑️ [WINDOW-CLOSE] Closing transcription window for player: \(playerId)")
+            window.close()
+            transcriptionWindows.removeValue(forKey: playerId)
+            NSLog("🗑️ [WINDOW-CLOSE] Transcription window closed")
+        } else {
+            NSLog("⚠️ [WINDOW-CLOSE] No transcription window found for player: \(playerId)")
+        }
     }
 }

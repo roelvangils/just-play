@@ -129,23 +129,8 @@ struct PlayerWindowView: View {
                     .strokeBorder(.white.opacity(0.2), lineWidth: 1)
                     .allowsHitTesting(false)
             )
-
-            // Close button overlay (appears on hover, positioned inside the frame)
-            if viewModel.isHovered {
-                VStack {
-                    HStack {
-                        Spacer()
-                        CloseButton(action: viewModel.close)
-                            .padding(.trailing, 8)  // 8px from right edge
-                            .padding(.top, 8)        // 8px from top edge
-                    }
-                    Spacer()
-                }
-                .frame(width: 160, height: 160)  // Match outer frame
-                .transition(.scale.combined(with: .opacity))
-            }
         }
-        .frame(width: 160, height: 160)  // Increased from 120 to 160 to accommodate close button
+        .frame(width: 120, height: 120)  // Player size
         .blur(radius: viewModel.isClosing ? 10 : 0)
         .opacity(windowOpacity)
         .scaleEffect(scale)

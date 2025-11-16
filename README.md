@@ -2,8 +2,17 @@
 
 A lightweight, minimalist audio player for macOS that focuses on simplicity and quick playback.
 
+## Accessibility
+
+**JustPlay is ideally suited for people with auditory impairments.** The built-in real-time transcription feature provides live subtitles for audio content, making it accessible to those who are deaf or hard of hearing. The transcription appears as floating text overlays, allowing users to follow along with spoken content in real-time.
+
 ## Features
 
+- **Real-Time Transcription**: Live speech-to-text transcription with on-device processing for English and cloud-based support for Dutch
+  - Two-line floating subtitle display with smooth transitions
+  - Support for both English (en-US) and Dutch (nl-NL) languages
+  - Easy language switching with keyboard shortcut
+  - On-device recognition for privacy (English) and cloud-based recognition (Dutch)
 - **Quick Audio Playback**: Double-click any audio file to open it instantly in a floating mini player
 - **Multiple Players**: Open multiple audio files simultaneously, each in its own independent player window
 - **Floating Windows**: Player windows stay on top of other applications (optional)
@@ -23,6 +32,8 @@ Hover over any player window and use these shortcuts:
 | Rewind | `R` |
 | Skip backward 1 second | `B` |
 | Skip forward 1 second | `F` |
+| Toggle Transcription | `T` |
+| Toggle Language (English ↔ Dutch) | `L` |
 | Close Player | `X` or `Q` |
 
 ## Global Shortcuts
@@ -61,6 +72,7 @@ Hover over any player window and use these shortcuts:
 
 - macOS 13.0 (Ventura) or later
 - Xcode 15.0 or later (for building from source)
+- Speech Recognition permission (required for transcription feature - you'll be prompted on first use)
 
 ## Usage
 
@@ -102,17 +114,28 @@ JustPlay supports all audio formats natively supported by macOS AVFoundation, in
 ## Technology Stack
 
 - **SwiftUI**: Modern declarative UI framework
-- **AVFoundation**: Audio playback engine
+- **AVFoundation**: Audio playback engine and audio tap for real-time processing
+- **Speech Framework**: Real-time speech recognition (SFSpeechRecognizer)
 - **AppKit**: Native macOS window management and keyboard event handling
+- **Combine**: Reactive programming for transcription updates
 
 ## Architecture
 
 JustPlay is built with a clean separation of concerns:
 
-- **Models**: `AudioPlayer` - Core AVPlayer wrapper for audio playback
-- **ViewModels**: `PlayerViewModel` - Business logic and state management
-- **Views**: SwiftUI views for the player interface
-- **Managers**: `WindowManager` - Centralized window and player lifecycle management
+- **Models**:
+  - `AudioPlayer` - Core AVPlayer wrapper for audio playback
+  - `AudioTranscriptionManager` - Speech recognition and language management
+  - `MTAudioTap` - Real-time audio capture and format conversion
+- **ViewModels**:
+  - `PlayerViewModel` - Business logic and state management
+  - `TranscriptionViewModel` - Transcription bubble state and text formatting
+- **Views**:
+  - SwiftUI views for the player interface
+  - `TranscriptionBubbleView` - Floating two-line subtitle display
+- **Managers**:
+  - `WindowManager` - Centralized window and player lifecycle management
+  - `TranscriptionLogger` - Debug logging for transcription pipeline
 - **App**: `AppDelegate` - Global keyboard shortcuts and app lifecycle
 
 ## Contributing

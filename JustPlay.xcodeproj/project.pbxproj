@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		46F89E542EC9FEA200B35D0B /* MTAudioTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F89E532EC9FEA200B35D0B /* MTAudioTap.swift */; };
+		46F89E552EC9FEA200B35D0B /* AudioTranscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F89E522EC9FEA200B35D0B /* AudioTranscriptionManager.swift */; };
+		46F89E572EC9FEB600B35D0B /* TranscriptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F89E562EC9FEB600B35D0B /* TranscriptionViewModel.swift */; };
+		46F89E5A2EC9FECA00B35D0B /* TranscriptionBubbleWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F89E592EC9FECA00B35D0B /* TranscriptionBubbleWindow.swift */; };
+		46F89E5B2EC9FECA00B35D0B /* TranscriptionBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F89E582EC9FECA00B35D0B /* TranscriptionBubbleView.swift */; };
 		A10000000000000000000001 /* JustPlayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* JustPlayApp.swift */; };
 		A10000000000000000000002 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* AudioPlayer.swift */; };
 		A10000000000000000000003 /* PlayerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* PlayerState.swift */; };
@@ -26,6 +31,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		46F89E522EC9FEA200B35D0B /* AudioTranscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioTranscriptionManager.swift; sourceTree = "<group>"; };
+		46F89E532EC9FEA200B35D0B /* MTAudioTap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTAudioTap.swift; sourceTree = "<group>"; };
+		46F89E562EC9FEB600B35D0B /* TranscriptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionViewModel.swift; sourceTree = "<group>"; };
+		46F89E582EC9FECA00B35D0B /* TranscriptionBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionBubbleView.swift; sourceTree = "<group>"; };
+		46F89E592EC9FECA00B35D0B /* TranscriptionBubbleWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionBubbleWindow.swift; sourceTree = "<group>"; };
 		A00000000000000000000001 /* JustPlay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JustPlay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000001 /* JustPlayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JustPlayApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
@@ -95,6 +105,8 @@
 		AB0000000000000000000001 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				46F89E522EC9FEA200B35D0B /* AudioTranscriptionManager.swift */,
+				46F89E532EC9FEA200B35D0B /* MTAudioTap.swift */,
 				A20000000000000000000002 /* AudioPlayer.swift */,
 				A20000000000000000000003 /* PlayerState.swift */,
 			);
@@ -104,6 +116,7 @@
 		AC0000000000000000000001 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				46F89E562EC9FEB600B35D0B /* TranscriptionViewModel.swift */,
 				A20000000000000000000004 /* PlayerViewModel.swift */,
 			);
 			path = ViewModels;
@@ -112,6 +125,8 @@
 		AD0000000000000000000001 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				46F89E582EC9FECA00B35D0B /* TranscriptionBubbleView.swift */,
+				46F89E592EC9FECA00B35D0B /* TranscriptionBubbleWindow.swift */,
 				A20000000000000000000005 /* PlayerWindowView.swift */,
 				A20000000000000000000006 /* PlayPauseButton.swift */,
 				A20000000000000000000009 /* CloseButton.swift */,
@@ -202,7 +217,12 @@
 				A10000000000000000000008 /* WindowManager.swift in Sources */,
 				A10000000000000000000010 /* CloseButton.swift in Sources */,
 				A10000000000000000000011 /* DraggableView.swift in Sources */,
+				46F89E542EC9FEA200B35D0B /* MTAudioTap.swift in Sources */,
+				46F89E552EC9FEA200B35D0B /* AudioTranscriptionManager.swift in Sources */,
 				A10000000000000000000012 /* ProgressRing.swift in Sources */,
+				46F89E5A2EC9FECA00B35D0B /* TranscriptionBubbleWindow.swift in Sources */,
+				46F89E5B2EC9FECA00B35D0B /* TranscriptionBubbleView.swift in Sources */,
+				46F89E572EC9FEB600B35D0B /* TranscriptionViewModel.swift in Sources */,
 				A10000000000000000000013 /* AboutView.swift in Sources */,
 				A10000000000000000000014 /* BuildInfo.swift in Sources */,
 				A10000000000000000000015 /* KeyWindow.swift in Sources */,

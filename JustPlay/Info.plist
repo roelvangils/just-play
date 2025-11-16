@@ -32,6 +32,8 @@
 	<false/>
 	<key>NSQuitAlwaysKeepsWindows</key>
 	<false/>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>JustPlay uses speech recognition to provide real-time transcription of audio playback for accessibility and language learning.</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

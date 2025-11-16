@@ -20,16 +20,17 @@ struct KeyboardShortcutsView: View {
             VStack(alignment: .leading, spacing: 12) {
                 ShortcutRow(action: "Play/Pause", keys: "SPACE or P")
                 ShortcutRow(action: "Rewind", keys: "R")
-                ShortcutRow(action: "Close Player", keys: "X or Q")
                 ShortcutRow(action: "Skip backward 1 second", keys: "B")
                 ShortcutRow(action: "Skip forward 1 second", keys: "F")
+                ShortcutRow(action: "Toggle Transcription", keys: "T")
+                ShortcutRow(action: "Close Player", keys: "X or Q")
             }
             .padding(.vertical, 8)
 
             Spacer()
         }
         .padding(24)
-        .frame(width: 400, height: 300)
+        .frame(width: 400, height: 350)
     }
 }
 
