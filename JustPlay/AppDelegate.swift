@@ -27,6 +27,128 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Set up global keyboard monitor for hover-based shortcuts
         setupKeyboardMonitor()
+
+        // Listen for menu updates
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateColorMenu),
+            name: NSNotification.Name("UpdateColorMenu"),
+            object: nil
+        )
+
+        // Set up menu delegate to customize on open
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.setupMenuDelegate()
+        }
+    }
+
+    @objc private func updateColorMenu() {
+        NSLog("🎨 UpdateColorMenu notification received")
+        customizeAllColorMenus()
+    }
+
+    private func setupMenuDelegate() {
+        guard let mainMenu = NSApp.mainMenu else { return }
+
+        // Find and customize all color menus
+        customizeAllColorMenus()
+    }
+
+    private func customizeAllColorMenus() {
+        NSLog("🎨 Customizing color menus...")
+        guard let mainMenu = NSApp.mainMenu else {
+            NSLog("❌ No main menu")
+            return
+        }
+
+        for menuItem in mainMenu.items {
+            if let submenu = menuItem.submenu {
+                customizeMenu(submenu)
+            }
+        }
+    }
+
+    private func customizeMenu(_ menu: NSMenu) {
+        for item in menu.items {
+            // Check if this is the "New Player Color" submenu
+            if item.title == "New Player Color", let colorSubmenu = item.submenu {
+                NSLog("✅ Found New Player Color submenu")
+                customizeColorMenu(colorSubmenu)
+            }
+
+            // Recursively check submenus
+            if let submenu = item.submenu {
+                customizeMenu(submenu)
+            }
+        }
+    }
+
+    private func createColorCircleImage(hexColor: String) -> NSImage {
+        let size = NSSize(width: 16, height: 16)
+        let image = NSImage(size: size)
+
+        image.lockFocus()
+
+        // Convert hex to NSColor
+        let hex = hexColor.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r = CGFloat((int >> 16) & 0xFF) / 255.0
+        let g = CGFloat((int >> 8) & 0xFF) / 255.0
+        let b = CGFloat(int & 0xFF) / 255.0
+
+        let color = NSColor(red: r, green: g, blue: b, alpha: 1.0)
+        color.setFill()
+
+        let rect = NSRect(x: 2, y: 2, width: 12, height: 12)
+        let path = NSBezierPath(ovalIn: rect)
+        path.fill()
+
+        image.unlockFocus()
+
+        return image
+    }
+
+
+    private func customizeColorMenu(_ menu: NSMenu) {
+        let colors: [(String, String)] = [
+            ("Random", ""),
+            ("Green", "6ba64e"),
+            ("Gold", "daa843"),
+            ("Orange", "e3873a"),
+            ("Red", "bb413e"),
+            ("Purple", "7e3b84"),
+            ("Blue", "3f8bc2")
+        ]
+
+        NSLog("   Customizing \(menu.items.count) menu items")
+
+        for item in menu.items {
+            // Skip separators
+            if item.isSeparatorItem {
+                continue
+            }
+
+            let originalTitle = item.title
+            NSLog("      Processing: '\(originalTitle)'")
+
+            // Find matching color
+            for (name, hex) in colors {
+                if originalTitle.contains(name) {
+                    NSLog("         Matched: \(name)")
+
+                    // Set the image
+                    if !hex.isEmpty {
+                        item.image = self.createColorCircleImage(hexColor: hex)
+                        NSLog("         Set colored circle for \(hex)")
+                    }
+
+                    break
+                }
+            }
+        }
+
+        NSLog("   ✅ Color menu customization complete")
     }
 
     private func setupKeyboardMonitor() {

@@ -11,6 +11,9 @@ struct JustPlayApp: App {
     @ObservedObject private var windowManager = WindowManager.shared
     @AppStorage("autoCloseMiniPlayers") private var autoCloseMiniPlayers = true
     @AppStorage("alwaysOnTop") private var alwaysOnTop = false
+    @AppStorage("audioTranscriptionEnabled") private var audioTranscriptionEnabled = false
+    @AppStorage("circularTranscriptionMode") private var circularTranscriptionMode = false
+    @AppStorage("newPlayerColor") private var newPlayerColor: String = "random"
 
     init() {
         // Share the window manager instance
@@ -56,6 +59,16 @@ struct JustPlayApp: App {
 
             Divider()
 
+            Toggle("Audio Transcription", isOn: $audioTranscriptionEnabled)
+
+            Toggle("Circular Transcription", isOn: $circularTranscriptionMode)
+                .disabled(!audioTranscriptionEnabled)
+                .onChange(of: circularTranscriptionMode) { _, newValue in
+                    WindowManager.shared.setCircularTranscriptionMode(newValue)
+                }
+
+            Divider()
+
             Button("Keyboard Shortcuts") {
                 WindowManager.shared.showKeyboardShortcuts()
             }
@@ -74,8 +87,9 @@ struct JustPlayApp: App {
         }
         .commands {
             CommandGroup(replacing: .appInfo) {
-                // About will be added later via AppKit
-                EmptyView()
+                Button("About JustPlay") {
+                    WindowManager.shared.showAbout()
+                }
             }
 
             CommandGroup(replacing: .newItem) {
@@ -116,6 +130,80 @@ struct JustPlayApp: App {
                     .onChange(of: alwaysOnTop) { _, newValue in
                         WindowManager.shared.setAlwaysOnTop(newValue)
                     }
+
+                Divider()
+
+                Toggle("Audio Transcription", isOn: $audioTranscriptionEnabled)
+                    .keyboardShortcut("r", modifiers: [.command, .shift])
+
+                Toggle("Circular Transcription", isOn: $circularTranscriptionMode)
+                    .keyboardShortcut("c", modifiers: [.command, .shift])
+                    .disabled(!audioTranscriptionEnabled)
+                    .onChange(of: circularTranscriptionMode) { _, newValue in
+                        WindowManager.shared.setCircularTranscriptionMode(newValue)
+                    }
+
+                Divider()
+
+                Menu("New Player Color") {
+                    Button(action: {
+                        newPlayerColor = "random"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Label("Random", systemImage: "shuffle")
+                    }
+                    .badge(newPlayerColor == "random" ? Text("✓") : Text(""))
+
+                    Divider()
+
+                    Button(action: {
+                        newPlayerColor = "green"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Text("Green")
+                    }
+                    .badge(newPlayerColor == "green" ? Text("✓") : Text(""))
+
+                    Button(action: {
+                        newPlayerColor = "gold"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Text("Gold")
+                    }
+                    .badge(newPlayerColor == "gold" ? Text("✓") : Text(""))
+
+                    Button(action: {
+                        newPlayerColor = "orange"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Text("Orange")
+                    }
+                    .badge(newPlayerColor == "orange" ? Text("✓") : Text(""))
+
+                    Button(action: {
+                        newPlayerColor = "red"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Text("Red")
+                    }
+                    .badge(newPlayerColor == "red" ? Text("✓") : Text(""))
+
+                    Button(action: {
+                        newPlayerColor = "purple"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Text("Purple")
+                    }
+                    .badge(newPlayerColor == "purple" ? Text("✓") : Text(""))
+
+                    Button(action: {
+                        newPlayerColor = "blue"
+                        NotificationCenter.default.post(name: NSNotification.Name("UpdateColorMenu"), object: nil)
+                    }) {
+                        Text("Blue")
+                    }
+                    .badge(newPlayerColor == "blue" ? Text("✓") : Text(""))
+                }
             }
 
             CommandGroup(before: .help) {

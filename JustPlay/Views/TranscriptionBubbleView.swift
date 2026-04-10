@@ -72,7 +72,7 @@ struct TranscriptionBubbleView: View {
                 .padding(.vertical, 14)
                 .blur(radius: 0) // Base state for blur animation
                 .animation(.easeInOut(duration: 0.2), value: textChangeID)
-                .frame(minWidth: 150, maxWidth: 400)
+                .frame(minWidth: 200, maxWidth: 550)
                 .frame(height: viewModel.secondLine.isEmpty ? 55 : 80)
                 .transition(.scale.combined(with: .opacity))
                 .animation(.easeInOut(duration: 0.2), value: viewModel.isVisible)

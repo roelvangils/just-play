@@ -46,8 +46,8 @@ struct VisualEffectBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> DraggableVisualEffectView {
         let view = DraggableVisualEffectView()
 
-        // Use hudWindow material for darker vibrancy that respects system appearance
-        view.material = .hudWindow
+        // Use underWindowBackground for true translucency with blur
+        view.material = .underWindowBackground
 
         view.blendingMode = .behindWindow
         view.state = .active  // Always active, never changes
@@ -100,9 +100,15 @@ struct PlayerWindowView: View {
         ZStack {
             // Main circular player content
             ZStack {
-                // Visual effect background with dragging
-                VisualEffectBackground()
+                // Colored circular background
+                Circle()
+                    .fill(viewModel.playerColor)
                     .frame(width: 120, height: 120)
+                    .overlay(
+                        // Draggable overlay to enable window dragging
+                        DraggableBackgroundView()
+                            .clipShape(Circle())
+                    )
 
                 // Progress ring (appears when playing)
                 ProgressRing(

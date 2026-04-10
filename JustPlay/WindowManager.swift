@@ -17,6 +17,7 @@ class WindowManager: ObservableObject {
     private var windows: [UUID: NSWindow] = [:]
     private var transcriptionWindows: [UUID: NSWindow] = [:]
     private var alwaysOnTop: Bool = false
+    private var circularModeEnabled: Bool = false
 
     private let recentItemsKey = "RecentAudioFiles"
     private let maxRecentItems = 10
@@ -350,6 +351,24 @@ class WindowManager: ObservableObject {
         window.makeKeyAndOrderFront(nil)
     }
 
+    func showAbout() {
+        let contentView = AboutView()
+        let hostingController = NSHostingController(rootView: contentView)
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 450, height: 300),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.contentViewController = hostingController
+        window.title = "About JustPlay"
+        window.center()
+        window.isReleasedWhenClosed = true
+        window.makeKeyAndOrderFront(nil)
+    }
+
     // MARK: - Transcription Window Management
 
     /// Create and show a transcription window for a player
@@ -366,11 +385,12 @@ class WindowManager: ObservableObject {
         NSLog("🪟 [WINDOW-SHOW] Closing any existing transcription window...")
         closeTranscriptionWindow(for: viewModel.id)
 
-        // Create transcription window
-        NSLog("🪟 [WINDOW-SHOW] Creating transcription bubble window...")
+        // Create transcription window with current mode
+        NSLog("🪟 [WINDOW-SHOW] Creating transcription window - circular mode: \(circularModeEnabled)")
         let transcriptionWindow = TranscriptionBubbleWindowHelper.createWindow(
             for: viewModel.transcriptionViewModel!,
-            playerWindow: playerWindow
+            playerWindow: playerWindow,
+            isCircularMode: circularModeEnabled
         )
         NSLog("🪟 [WINDOW-SHOW] Transcription window created")
 
@@ -402,8 +422,14 @@ class WindowManager: ObservableObject {
             return
         }
 
-        NSLog("🪟 [WINDOW-POSITION] Updating transcription window position for player: \(playerId)")
-        TranscriptionBubbleWindowHelper.positionWindow(transcriptionWindow, below: playerWindow)
+        NSLog("🪟 [WINDOW-POSITION] Updating transcription window position - circular mode: \(circularModeEnabled)")
+
+        // Use appropriate positioning based on current mode
+        if circularModeEnabled {
+            TranscriptionBubbleWindowHelper.positionCircularWindow(transcriptionWindow, over: playerWindow)
+        } else {
+            TranscriptionBubbleWindowHelper.positionLinearWindow(transcriptionWindow, below: playerWindow)
+        }
     }
 
     /// Close transcription window for a specific player
@@ -416,5 +442,94 @@ class WindowManager: ObservableObject {
         } else {
             NSLog("⚠️ [WINDOW-CLOSE] No transcription window found for player: \(playerId)")
         }
+    }
+
+    // MARK: - Global Transcription Preferences
+
+    /// Get the global transcription preference for new players
+    func getGlobalTranscriptionPreference() -> Bool {
+        return UserDefaults.standard.bool(forKey: "audioTranscriptionEnabled")
+    }
+
+    /// Set circular transcription mode and update all active transcription windows
+    func setCircularTranscriptionMode(_ enabled: Bool) {
+        NSLog("🔄 [CIRCULAR-MODE] Setting circular transcription mode to: \(enabled)")
+
+        // Prevent rapid toggling
+        guard circularModeEnabled != enabled else {
+            NSLog("⚠️ [CIRCULAR-MODE] Mode already set to \(enabled), skipping")
+            return
+        }
+
+        circularModeEnabled = enabled
+
+        // Recreate all active transcription windows with new mode
+        NSLog("🔄 [CIRCULAR-MODE] Recreating \(transcriptionWindows.count) active transcription window(s)")
+
+        // Get all player IDs that have transcription windows (make a copy to avoid mutation during iteration)
+        let playerIdsWithTranscription = Array(transcriptionWindows.keys)
+
+        for playerId in playerIdsWithTranscription {
+            NSLog("🔄 [CIRCULAR-MODE] Recreating transcription window for player: \(playerId)")
+
+            // Find the corresponding view model
+            guard let viewModel = playerViewModels.first(where: { $0.id == playerId }),
+                  let playerWindow = windows[playerId],
+                  let transcriptionVM = viewModel.transcriptionViewModel,
+                  viewModel.isTranscriptionEnabled else {
+                NSLog("⚠️ [CIRCULAR-MODE] Skipping player \(playerId) - missing requirements or transcription disabled")
+                continue
+            }
+
+            // Remove old observers to prevent memory leaks
+            NotificationCenter.default.removeObserver(
+                self,
+                name: NSWindow.didMoveNotification,
+                object: playerWindow
+            )
+
+            // Close existing window
+            closeTranscriptionWindow(for: playerId)
+
+            // Small delay to ensure cleanup completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                guard let self = self else { return }
+
+                // Verify window and view model still exist
+                guard let playerWindow = self.windows[playerId],
+                      let viewModel = self.playerViewModels.first(where: { $0.id == playerId }),
+                      let transcriptionVM = viewModel.transcriptionViewModel,
+                      viewModel.isTranscriptionEnabled else {
+                    NSLog("⚠️ [CIRCULAR-MODE] Player \(playerId) state changed, skipping recreation")
+                    return
+                }
+
+                // Recreate with new mode
+                let transcriptionWindow = TranscriptionBubbleWindowHelper.createWindow(
+                    for: transcriptionVM,
+                    playerWindow: playerWindow,
+                    isCircularMode: self.circularModeEnabled
+                )
+
+                // Store reference
+                self.transcriptionWindows[playerId] = transcriptionWindow
+
+                // Re-add observer for player window movement
+                NotificationCenter.default.addObserver(
+                    forName: NSWindow.didMoveNotification,
+                    object: playerWindow,
+                    queue: .main
+                ) { [weak self] _ in
+                    self?.updateTranscriptionWindowPosition(for: playerId)
+                }
+
+                // Show the window
+                transcriptionWindow.orderFront(nil)
+
+                NSLog("✅ [CIRCULAR-MODE] Recreated transcription window for player: \(playerId)")
+            }
+        }
+
+        NSLog("✅ [CIRCULAR-MODE] Circular mode update initiated for \(enabled)")
     }
 }
